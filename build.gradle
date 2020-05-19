@@ -1,10 +1,8 @@
 buildscript {
     repositories {
+        maven { url = 'https://files.minecraftforge.net/maven' }
         jcenter()
-        maven {
-            name = "forge"
-            url = "http://files.minecraftforge.net/maven" 
-        }
+        mavenCentral()
         maven {
             url = "https://oss.sonatype.org/content/groups/public"
         }
@@ -13,7 +11,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
         classpath 'org.ajoberstar:gradle-git:0.10.1'
         classpath "gradle.plugin.com.matthewprenger:CurseGradle:1.1.0"
     }
@@ -23,7 +21,9 @@ plugins {
   id "com.matthewprenger.cursegradle" version "1.1.0"
 }
 
-apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'eclipse'
+apply plugin: 'maven-publish'
 apply plugin: 'com.matthewprenger.cursegradle'
 apply plugin: 'maven'
 
@@ -35,62 +35,116 @@ dependencies {
     deployerJars 'org.apache.maven.wagon:wagon-ftp:2.2'
 }
 
-def version_minecraft="1.12.2"
-def version_forge="14.23.5.2847"
-def version_mappings="stable_39"
+
+def version_forge="28.2.16"
+def version_mc="1.14.4"
 def curseforge_id="248278"
 def curseforge_release_type="release"
 def curseforge_api_key=project.ext.properties.curseforge_api_key == null ? "00000-00000-00000-00000-00000" : project.ext.properties.curseforge_api_key
 def mavenUsername=project.ext.properties.mavenUsername == null ? "user" : project.ext.properties.mavenUsername
 def mavenPassword=project.ext.properties.mavenPassword == null ? "none" : project.ext.properties.mavenPassword
 
-version = "${System.env.PROJECT_VERSION}"
-group = "com.asx"
-archivesBaseName = "mdxlib"
+version = '1.14.4-1.0'
+group = 'com.asx.mdxlib' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = 'mdxlib'
 
-tasks.withType(JavaCompile) {
-	sourceCompatibility = "1.8"
-	targetCompatibility = "1.8"
-	options.encoding = 'UTF-8'
-}
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 
 minecraft {
-    version = "${version_minecraft}-${version_forge}"
-    runDir = "run"
-    mappings = version_mappings
+    mappings channel: 'snapshot', version: '20190719-1.14.3'
     
-    replace "@VERSION@", "${System.env.PROJECT_VERSION}" 
-    replaceIn 'MDX.java'
+    runs {
+        client {
+            workingDirectory project.file('run')
+
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'debug'
+
+            mods {
+                examplemod {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        server {
+            workingDirectory project.file('run')
+
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'debug'
+
+            mods {
+                examplemod {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        data {
+            workingDirectory project.file('run')
+
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'debug'
+
+            args '--mod', 'examplemod', '--all', '--output', file('src/generated/resources/')
+
+            mods {
+                examplemod {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
 }
 
-println "Minecraft Forge ${version_forge} with mappings " + minecraft.mappings
-
-def sharedManifest = {
-    attributes 'FMLAT': 'mdxlib_at.cfg'
-    attributes 'FMLCorePlugin' : 'com.asx.mdx.FMLModule'
-	attributes 'FMLCorePluginContainsFMLMod' : 'true'
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.14.4-28.2.16'
 }
 
 jar {
-	archiveName = "${archivesBaseName}-${version}.jar"
-    manifest sharedManifest
+    manifest {
+        attributes([
+            "Specification-Title": "mdxlib",
+            "Specification-Vendor": "asx",
+            "Specification-Version": "1", // We are version 1 of ourselves
+            "Implementation-Title": project.name,
+            "Implementation-Version": "${version}",
+            "Implementation-Vendor" :"asx",
+            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
 }
 
-task srcJar(type: Jar) {
-    from sourceSets.main.output
-	archiveName = "${archivesBaseName}-${version}-sources.jar"
-    classifier = 'sources'
+def reobfFile = file("$buildDir/reobfJar/output.jar")
+def reobfArtifact = artifacts.add('default', reobfFile) {
+    type 'jar'
+    builtBy 'reobfJar'
+}
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact reobfArtifact
+        }
+    }
+    repositories {
+        maven {
+            url "file:///${project.projectDir}/mcmodsrepo"
+        }
+    }
 }
 
-task deobfJar(type: Jar) {
-    from sourceSets.main.output
-	archiveName = "${archivesBaseName}-${version}-deobf.jar"
-    classifier = 'deobf'
-    manifest sharedManifest
-}
+processResources {
+	inputs.property 'version', project.version
 
-artifacts {
-    archives srcJar, deobfJar
+	from(sourceSets.main.resources.srcDirs) {
+		include 'META-INF/mods.toml'
+
+		expand 'version':project.version
+	}
+
+	from(sourceSets.main.resources.srcDirs) {
+		exclude 'META-INF/mods.toml'
+	}
 }
 
 curseforge {
@@ -109,20 +163,6 @@ curseforge {
     }
 }
 
-processResources {
-    inputs.property "version", version
-    inputs.property "mcversion", minecraft.version
-
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-        expand 'version':version, 'mcversion':minecraft.version
-    }
-    
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
-    }
-}
-
 task("publishToMaven", dependsOn:"build") {
     description = "Uploads the artifacts generated during the build process to the aliensvspredator maven repository"
 
@@ -135,8 +175,8 @@ task("publishToMaven", dependsOn:"build") {
             
 	        pom.project {
 	        	properties {
-	            	forgeVersion = version_minecraft
-	            	mcVersion = minecraft.version
+	            	forgeVersion = version_forge
+	            	mcVersion = version_mc
 	            }
 	        }
         }
