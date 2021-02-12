@@ -1,0 +1,28 @@
+
+modLoader="javafml" #mandatory
+loaderVersion="[36,)" #mandatory This is typically bumped every Minecraft version by Forge. See our download page for lists of versions.
+license="All rights reserved"
+
+[[mods]] #mandatory
+modId="mdxlib" #mandatory
+version="${file.jarVersion}" #mandatory
+displayName="MDXLIB" #mandatory
+issueTrackerURL="https://github.com/Ri5ux/MDXLib/issues"
+displayURL="https://www.curseforge.com/minecraft/mc-mods/mdxlib"
+credits="Thanks to Ri5ux for making this mod originally" #optional
+authors="Ri5ux for 1.12.2 and below. RedRoseWarrior1 for 1.16.5" #optional
+description='''
+MDXLib (Minecraft Development Library X) is a Minecraft Mod Development Library used by the ASX Minecraft Mod Development Team to develop Minecraft mods. This library is open source.
+'''
+[[dependencies.mdxlib]] #optional
+    modId="forge" #mandatory
+    mandatory=true #mandatory
+    versionRange="[36,)" #mandatory
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.mdxlib]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.16.5]"
+    ordering="NONE"
+    side="BOTH"

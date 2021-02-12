@@ -1,144 +1,118 @@
 buildscript {
     repositories {
+        maven { url = 'https://files.minecraftforge.net/maven' }
         jcenter()
-        maven {
-            name = "forge"
-            url = "http://files.minecraftforge.net/maven" 
-        }
-        maven {
-            url = "https://oss.sonatype.org/content/groups/public"
-        }
-        maven {
-            url = "https://plugins.gradle.org/m2/"
-        }
+        mavenCentral()
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
-        classpath 'org.ajoberstar:gradle-git:0.10.1'
-        classpath "gradle.plugin.com.matthewprenger:CurseGradle:1.1.0"
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
+    }
+}
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'maven-publish'
+
+version = '3.0.0.27'
+group = 'com.asx.mdxlib'
+archivesBaseName = 'mdxlib'
+
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
+
+println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
+minecraft {
+
+    mappings channel: 'snapshot', version: '20201028-1.16.3'
+
+    runs {
+        client {
+            workingDirectory project.file('run')
+
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+            property 'forge.logging.console.level', 'debug'
+
+            mods {
+                examplemod {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        server {
+            workingDirectory project.file('run')
+
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+            property 'forge.logging.console.level', 'debug'
+
+            mods {
+                examplemod {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        data {
+            workingDirectory project.file('run')
+
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+            property 'forge.logging.console.level', 'debug'
+
+            args '--mod', 'mdxlib', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+
+            mods {
+                examplemod {
+                    source sourceSets.main
+                }
+            }
+        }
     }
 }
 
-plugins {
-  id "com.matthewprenger.cursegradle" version "1.1.0"
-}
-
-apply plugin: 'net.minecraftforge.gradle.forge'
-apply plugin: 'com.matthewprenger.cursegradle'
-apply plugin: 'maven'
-
-configurations {
-    deployerJars
-}
+sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 dependencies {
-    deployerJars 'org.apache.maven.wagon:wagon-ftp:2.2'
-}
 
-def version_minecraft="1.12.2"
-def version_forge="14.23.5.2847"
-def version_mappings="stable_39"
-def curseforge_id="248278"
-def curseforge_release_type="release"
-def curseforge_api_key=project.ext.properties.curseforge_api_key == null ? "00000-00000-00000-00000-00000" : project.ext.properties.curseforge_api_key
-def mavenUsername=project.ext.properties.mavenUsername == null ? "user" : project.ext.properties.mavenUsername
-def mavenPassword=project.ext.properties.mavenPassword == null ? "none" : project.ext.properties.mavenPassword
+    minecraft 'net.minecraftforge:forge:1.16.5-36.0.15'
 
-version = "${System.env.PROJECT_VERSION}"
-group = "com.asx"
-archivesBaseName = "mdxlib"
 
-tasks.withType(JavaCompile) {
-	sourceCompatibility = "1.8"
-	targetCompatibility = "1.8"
-	options.encoding = 'UTF-8'
-}
-
-minecraft {
-    version = "${version_minecraft}-${version_forge}"
-    runDir = "run"
-    mappings = version_mappings
-    
-    replace "@VERSION@", "${System.env.PROJECT_VERSION}" 
-    replaceIn 'MDX.java'
-}
-
-println "Minecraft Forge ${version_forge} with mappings " + minecraft.mappings
-
-def sharedManifest = {
-    attributes 'FMLAT': 'mdxlib_at.cfg'
-    attributes 'FMLCorePlugin' : 'com.asx.mdx.FMLModule'
-	attributes 'FMLCorePluginContainsFMLMod' : 'true'
-}
-
-jar {
-	archiveName = "${archivesBaseName}-${version}.jar"
-    manifest sharedManifest
-}
-
-task srcJar(type: Jar) {
-    from sourceSets.main.output
-	archiveName = "${archivesBaseName}-${version}-sources.jar"
-    classifier = 'sources'
-}
-
-task deobfJar(type: Jar) {
-    from sourceSets.main.output
-	archiveName = "${archivesBaseName}-${version}-deobf.jar"
-    classifier = 'deobf'
-    manifest sharedManifest
-}
-
-artifacts {
-    archives srcJar, deobfJar
-}
-
-curseforge {
-        apiKey = curseforge_api_key
-
-        project {
-            id = curseforge_id
-            changelog = ''
-            releaseType = hasProperty('curseforge_release_type') ? curseforge_release_type : 'release'
-
-            mainArtifact jar
-
-            relations {
-                requiredLibrary 'mdxlib'
+    jar {
+        manifest {
+            attributes([
+                    "Specification-Title"     : "mdxlib",
+                    "Specification-Vendor"    : "mdxlibsareus",
+                    "Specification-Version"   : "1", // We are version 1 of ourselves
+                    "Implementation-Title"    : project.name,
+                    "Implementation-Version"  : "${version}",
+                    "Implementation-Vendor"   : "mdxlibmodsareus",
+                    "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+            ])
         }
     }
-}
 
-processResources {
-    inputs.property "version", version
-    inputs.property "mcversion", minecraft.version
+    jar.finalizedBy('reobfJar')
 
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-        expand 'version':version, 'mcversion':minecraft.version
-    }
-    
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
-    }
-}
-
-task("publishToMaven", dependsOn:"build") {
-    description = "Uploads the artifacts generated during the build process to the aliensvspredator maven repository"
-
-    uploadArchives {
-        repositories.mavenDeployer {
-            configuration = configurations.deployerJars
-            repository(url: "ftp://127.0.0.1") {
-                authentication(userName: mavenUsername, password: mavenPassword)
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                artifact jar
             }
-            
-	        pom.project {
-	        	properties {
-	            	forgeVersion = version_minecraft
-	            	mcVersion = minecraft.version
-	            }
-	        }
+        }
+        repositories {
+            maven {
+                url "file:///${project.projectDir}/mcmodsrepo"
+            }
         }
     }
+
 }
+
+
+
+
+
+
+
+
+
+

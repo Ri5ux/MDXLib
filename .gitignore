@@ -1,25 +1,25 @@
-# Everything
-/*
+# eclipse
+bin
+*.launch
+.settings
+.metadata
+.classpath
+.project
 
-# Directories
-!/src
-!/gradle
+# idea
+out
+*.ipr
+*.iws
+*.iml
+.idea
 
-# files
-!/.gitignore
-!/.gitmodules
-!/CONTRIBUTING.MD
-!/LICENSE.txt
-!/README.md
-!/gradle.properties
-!/build.gradle
-!/gradlew
-!/gradlew.bat
-.DS_Store
+# gradle
+build
+.gradle
 
-# Do not include gradle.properties, in contains sensitive information.
-# Create an empty file called gradle.properties and enter the following:
-#
-# curseForgeApiKey=00000-00000-00000-00000-00000
-#
-gradle.properties
+# other
+eclipse
+run
+
+# Files from Forge MDK
+forge*changelog.txt
