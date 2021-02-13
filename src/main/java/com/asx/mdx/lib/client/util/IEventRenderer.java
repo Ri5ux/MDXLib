@@ -2,7 +2,7 @@ package com.asx.mdx.lib.client.util;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.eventbus.api.Event;
 
 public interface IEventRenderer
 {
