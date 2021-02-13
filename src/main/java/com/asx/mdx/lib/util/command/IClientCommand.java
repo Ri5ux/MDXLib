@@ -1,8 +1,8 @@
 package com.asx.mdx.lib.util.command;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 
 public interface IClientCommand
 {
-    public void executeClient(EntityPlayer player, String[] args);
+    public void executeClient(PlayerEntity player, String[] args);
 }
