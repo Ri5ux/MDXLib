@@ -1,7 +1,7 @@
 package com.asx.mdx.lib.util;
 
 import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.text.TextComponentString;
 
 public class Chat
@@ -36,12 +36,12 @@ public class Chat
         return new TextComponentString(format(message));
     }
 
-    public static void sendTo(EntityPlayer player, String message)
+    public static void sendTo(PlayerEntity player, String message)
     {
         player.sendMessage(component(message));
     }
 
-    public static void sendTo(EntityPlayer player, TextComponentString component)
+    public static void sendTo(PlayerEntity player, TextComponentString component)
     {
         player.sendMessage(component);
     }

@@ -23,4 +23,9 @@ public enum EnumAlignment implements IStringSerializable
     {
         return this.NAME;
     }
+
+    @Override
+    public String getString() {
+        return null;
+    }
 }
