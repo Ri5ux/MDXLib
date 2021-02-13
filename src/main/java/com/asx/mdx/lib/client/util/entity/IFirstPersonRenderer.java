@@ -1,6 +1,6 @@
 package com.asx.mdx.lib.client.util.entity;
 
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.eventbus.api.Event;
 
 public interface IFirstPersonRenderer
 {
