@@ -9,15 +9,15 @@ import com.asx.mdx.lib.util.Game;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Type;
 import net.minecraftforge.fml.relauncher.Side;
@@ -121,7 +121,7 @@ public class DebugToolsRenderer
 
         public static void renderWorldLastEvent(RenderWorldLastEvent event)
         {
-            EntityPlayer p = Minecraft.getMinecraft().player;
+            PlayerEntity p = Minecraft.getMinecraft().player;
             Tessellator tess = Tessellator.getInstance();
             BufferBuilder buff = tess.getBuffer();
 
@@ -154,7 +154,7 @@ public class DebugToolsRenderer
             }
         }
 
-        private static void drawBlockScannerBorders(RenderWorldLastEvent event, EntityPlayer p, Tessellator tess, BufferBuilder buff)
+        private static void drawBlockScannerBorders(RenderWorldLastEvent event, PlayerEntity p, Tessellator tess, BufferBuilder buff)
         {
             if (isBlockScannerEnabled() && Game.minecraft().gameSettings.thirdPersonView == 0)
             {
@@ -250,7 +250,7 @@ public class DebugToolsRenderer
             }
         }
 
-        private static void drawChunkBorders(RenderWorldLastEvent event, EntityPlayer p, Tessellator tess, BufferBuilder buff)
+        private static void drawChunkBorders(RenderWorldLastEvent event, PlayerEntity p, Tessellator tess, BufferBuilder buff)
         {
             if (areChunkBordersEnabled())
             {
@@ -336,7 +336,7 @@ public class DebugToolsRenderer
             }
         }
 
-        private static void drawChunkPlane(RenderWorldLastEvent event, EntityPlayer p, Tessellator tess, BufferBuilder buff)
+        private static void drawChunkPlane(RenderWorldLastEvent event, PlayerEntity p, Tessellator tess, BufferBuilder buff)
         {
             if (isChunkPlaneEnabled())
             {
