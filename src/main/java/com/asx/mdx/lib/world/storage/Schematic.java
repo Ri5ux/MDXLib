@@ -13,6 +13,7 @@ import com.asx.mdx.lib.world.Pos.BlockDataStore;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
@@ -32,7 +33,7 @@ public class Schematic
     private Map<Short, String> idMap;
     private File file;
 
-    public Schematic(File file, NBTTagCompound tagCompound)
+    public Schematic(File file, CompoundNBT tagCompound)
     {
         String materials = tagCompound.getString("Materials");
 
@@ -120,7 +121,7 @@ public class Schematic
 
                 data.store(new BlockDataStore(block, meta));
 
-                if (block != null && getPass(block, meta) == pass && block != net.minecraft.init.Blocks.AIR)
+                if (block != null && getPass(block, meta) == pass && block != net.minecraft.block.Blocks.AIR)
                 {
                     structure.getBlockQueue().add(data);
                 }
