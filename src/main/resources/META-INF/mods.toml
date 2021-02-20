@@ -9,8 +9,8 @@ version="${file.jarVersion}" #mandatory
 displayName="MDXLIB" #mandatory
 issueTrackerURL="https://github.com/Ri5ux/MDXLib/issues"
 displayURL="https://www.curseforge.com/minecraft/mc-mods/mdxlib"
-credits="Thanks to Ri5ux for making this mod originally" #optional
-authors="Ri5ux for 1.12.2 and below. RedRoseWarrior1 for 1.16.5" #optional
+credits="Thanks to Cyber for making a lot of models" #optional
+authors="Ri5ux and RedRoseWarrior1" #optional
 description='''
 MDXLib (Minecraft Development Library X) is a Minecraft Mod Development Library used by the ASX Minecraft Mod Development Team to develop Minecraft mods. This library is open source.
 '''
